@@ -20,10 +20,11 @@ class plot:
 
     def build_plot(self, title, points_per_frame):
         fig = plt.figure()
-        fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
+        #fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
+        #plt.margins(x=None, y=None, tight=True)
         ax1 = plt.axes(xlim=(self.x_min - .001, self.x_max + .001), ylim=(self.y_min - .001, self.y_max + .001))
-        line, = ax1.plot([], [], lw=1)
-        #plt.axis('off')
+        line = ax1.plot([], [], lw=1)
+        ax1.axis('off')
 
         lines = []
         for index in range(len(self.data)):
@@ -43,7 +44,6 @@ class plot:
                 line.set_data(x_animation_values[lnum], y_animation_values[lnum]) 
             return lines
 
-        plt.gca().set_facecolor('xkcd:black')
         plt.gca().set_aspect('equal', adjustable='box')
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=self.length_max//points_per_frame, interval=1, blit=True)
         anim.save('Output/' + self.data[0].name.replace(' ','') + '_' + datetime.now().strftime("%Y-%m-%d") + '.gif', writer='imagemagick', fps=30)
