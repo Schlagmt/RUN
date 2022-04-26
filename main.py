@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 import run 
+import plot 
 import os
 from os import listdir
 
@@ -20,65 +21,28 @@ def main():
     pool = multiprocessing.Pool(4)
     runs = pool.map(readin_data, listdir('RawData/'))
 
-    fig = plt.figure()
+    type_names = set(([r.name for r in runs]))
+    type_values = []
+    for type_name in type_names:
+        type_values.append({
+            'type_name': type_name,
+            'count': len([r.name for r in runs if r.name == type_name])
+        })
+    type_values.sort(key = lambda x : x['count'], reverse=True)
+    for index, type_value in enumerate(type_values):
+        print(str(index+1) + '\t->\t' + type_value['type_name'] + '\t\tCount: ' + str(type_value['count']))
 
-    minXs = []
-    minYs = []
-    maxXs = []
-    maxYs = []
-    lengths = []
-    for r in runs:
+    quit_loop = True
+    while(quit_loop):
+        input_index = input("Enter the value you wanted plotted: ")
+        values_to_be_plotted = [r for r in runs if r.name == (type_values[int(input_index)-1])['type_name']]
 
-        minXs.append(min(r.x))
-        minYs.append(min(r.y))
-        maxXs.append(max(r.x))
-        maxYs.append(max(r.y))
-        lengths.append(len(r.x))
-
-        # plt.scatter(x,y,color='r', s=0)
-        # plt.plot(r.x,r.y,color='b',linewidth=1)
-        # print('Plotting: ' + r.name)
-
-    ax1 = plt.axes(xlim=(min(minXs) - .001, max(maxXs) + .001), ylim=(min(minYs) - .001, max(maxYs) + .001))
-    line, = ax1.plot([], [], lw=2)
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
-    plt.title('Title')
-
-    lines = []
-    for index in range(len(runs)):
-        lobj = ax1.plot([],[],lw=1,color='b')[0]
-        lines.append(lobj)
-
-    def init():
-        for line in lines:
-            line.set_data([],[])
-        return lines
-
-    Xs = [[] for x in runs]
-    Ys = [[] for x in runs]
-
-    frames_per_frame = 5
-
-    def animate(i):
-
-        for index in range(len(runs)):
-            Xs[index] = runs[index].x[:i*frames_per_frame]
-            Ys[index] = runs[index].y[:i*frames_per_frame]
-
-        #for index in range(0,1):
-        for lnum,line in enumerate(lines):
-            line.set_data(Xs[lnum], Ys[lnum]) # set data for each line separately. 
-
-        return lines
-
-    plt.gca().set_facecolor('xkcd:black')
-    
-    plt.gca().set_aspect('equal', adjustable='box')
-    
-    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=max(lengths)//frames_per_frame, interval=1, blit=True)
-
-    plt.show()
+        input_points_per_frame = input("Enter points per frame (Runs: 5, Walks: 10): ")
+        new_plot = plot.plot(values_to_be_plotted)
+        new_plot.build_plot((type_values[int(input_index)-1])['type_name'], int(input_points_per_frame))
+        input_quit = input("Quit? (Y or N): ")
+        if input_quit == 'Y':
+            quit_loop = False 
 
 if __name__=="__main__":
     main()

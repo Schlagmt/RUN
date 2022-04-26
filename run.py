@@ -25,6 +25,7 @@ class run:
                 self.x.append(point.longitude)
                 self.y.append(point.latitude)
                 self.elevation.append(point.elevation)
+        print('Processed: ' + self.new_filename)
     
     def create_new_file(self):
         shutil.copy('RawData/' + self.filename, 'CleanData/' + self.new_filename)
